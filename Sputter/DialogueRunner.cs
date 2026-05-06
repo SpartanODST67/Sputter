@@ -1,9 +1,3 @@
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using UnityEngine;
-
 public class DialogueRunner : MonoBehaviour
 {
     public static DialogueRunner Instance { private set; get; }
@@ -21,9 +15,10 @@ public class DialogueRunner : MonoBehaviour
         try
         {
             json = File.ReadAllText($"Assets/Dialogue/{dialogueFile}.json");
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
-            Debug.LogError( e.Message );
+            Debug.LogError(e.Message);
             return;
         }
 
@@ -36,14 +31,14 @@ public class DialogueRunner : MonoBehaviour
         Debug.Log(json);
 
         dialogueMap = JsonConvert.DeserializeObject<Dictionary<string, DialogueNode>>(json);
-        
-        if(dialogueMap.Count == 0)
+
+        if (dialogueMap.Count == 0)
         {
             Debug.LogError($"Dialogue nodes are empty. Is {dialogueFile} empty?");
             return;
         }
 
-        if(!dialogueMap.ContainsKey(startingNode))
+        if (!dialogueMap.ContainsKey(startingNode))
         {
             Debug.LogError($"Dialogue does not contain {startingNode}");
             return;
@@ -59,14 +54,14 @@ public class DialogueRunner : MonoBehaviour
 
     private void RunDialogue(DialogueNode currentNode)
     {
-        if(currentNode == null)
+        if (currentNode == null)
         {
             EndDialogue();
             return;
         }
 
         nextNode = null;
-        if(dialogueMap.TryGetValue(currentNode.nextDialogueNode, out DialogueNode foundNextNode))
+        if (dialogueMap.TryGetValue(currentNode.nextDialogueNode, out DialogueNode foundNextNode))
         {
             nextNode = foundNextNode;
         }
@@ -75,12 +70,18 @@ public class DialogueRunner : MonoBehaviour
 
         DialogueBox.Instance.ShowDialogueBox(currentNode.speaker, currentNode.dialogue);
 
-        if(dialogueOptions?.Length > 0)
+        if (dialogueOptions?.Length > 0)
         {
             DialogueNode[] targetNodes = new DialogueNode[dialogueOptions.Length];
             for (int i = 0; i < dialogueOptions.Length; i++)
             {
-                if (dialogueMap.TryGetValue(dialogueOptions[i].nextDialogueNode, out DialogueNode foundNextBranch)) { 
+                if (
+                    dialogueMap.TryGetValue(
+                        dialogueOptions[i].nextDialogueNode,
+                        out DialogueNode foundNextBranch
+                    )
+                )
+                {
                     targetNodes[i] = foundNextBranch;
                 }
                 else
